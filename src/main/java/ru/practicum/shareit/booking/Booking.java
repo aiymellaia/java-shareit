@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.Data;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -13,8 +14,4 @@ public class Booking {
     private Item item;
     private User booker;
     private BookingStatus status;
-}
-
-enum BookingStatus {
-    WAITING, APPROVED, REJECTED, CANCELED
 }
