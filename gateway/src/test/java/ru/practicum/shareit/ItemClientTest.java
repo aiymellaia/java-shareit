@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriTemplateHandler;
 import ru.practicum.shareit.client.ItemClient;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -27,29 +28,17 @@ class ItemClientTest {
 
     @BeforeEach
     void setUp() {
+        // 1. Создаем экземпляр
         RestTemplate restTemplate = new RestTemplate();
+
+        // 2. Устанавливаем базовый путь, чтобы BaseClient корректно склеивал URL
+        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090/items"));
+
+        // 3. Создаем сервер для перехвата
         mockServer = MockRestServiceServer.createServer(restTemplate);
 
-        // Используем проверенный ручной стаб, изолирующий Apache HttpClient от сети
-        RestTemplateBuilder stubBuilder = new RestTemplateBuilder() {
-            @Override
-            public RestTemplateBuilder uriTemplateHandler(UriTemplateHandler handler) {
-                restTemplate.setUriTemplateHandler(handler);
-                return this;
-            }
-
-            @Override
-            public RestTemplateBuilder requestFactory(Supplier<ClientHttpRequestFactory> requestFactorySupplier) {
-                return this;
-            }
-
-            @Override
-            public RestTemplate build() {
-                return restTemplate;
-            }
-        };
-
-        itemClient = new ItemClient(stubBuilder);
+        // 4. Передаем restTemplate напрямую в клиент
+        itemClient = new ItemClient(restTemplate);
     }
 
     @Test

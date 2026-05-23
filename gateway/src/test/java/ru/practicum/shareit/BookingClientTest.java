@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriTemplateHandler;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.client.BookingClient;
@@ -26,29 +27,17 @@ class BookingClientTest {
 
     @BeforeEach
     void setUp() {
+        // 1. Создаем RestTemplate
         RestTemplate restTemplate = new RestTemplate();
+
+        // 2. Устанавливаем обработчик URI с учетом API_PREFIX
+        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090/bookings"));
+
+        // 3. Создаем сервер
         mockServer = MockRestServiceServer.createServer(restTemplate);
 
-        // Наш проверенный стаб, отсекающий реальную сеть
-        RestTemplateBuilder stubBuilder = new RestTemplateBuilder() {
-            @Override
-            public RestTemplateBuilder uriTemplateHandler(UriTemplateHandler handler) {
-                restTemplate.setUriTemplateHandler(handler);
-                return this;
-            }
-
-            @Override
-            public RestTemplateBuilder requestFactory(Supplier<ClientHttpRequestFactory> requestFactorySupplier) {
-                return this;
-            }
-
-            @Override
-            public RestTemplate build() {
-                return restTemplate;
-            }
-        };
-
-        bookingClient = new BookingClient(stubBuilder);
+        // 4. Инициализируем клиент, передавая restTemplate напрямую
+        bookingClient = new BookingClient(restTemplate);
     }
 
     @Test

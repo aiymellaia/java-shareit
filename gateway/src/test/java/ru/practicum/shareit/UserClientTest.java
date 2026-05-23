@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriTemplateHandler;
 import ru.practicum.shareit.client.UserClient;
 
@@ -25,28 +26,18 @@ class UserClientTest {
 
     @BeforeEach
     void setUp() {
+        // 1. Создаем RestTemplate
         RestTemplate restTemplate = new RestTemplate();
+
+        // 2. ВАЖНО: Настраиваем базовый URL здесь!
+        // BaseClient ожидает, что UriTemplateHandler знает, куда слать запросы
+        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090/users"));
+
+        // 3. Создаем MockServer
         mockServer = MockRestServiceServer.createServer(restTemplate);
 
-        RestTemplateBuilder stubBuilder = new RestTemplateBuilder() {
-            @Override
-            public RestTemplateBuilder uriTemplateHandler(UriTemplateHandler handler) {
-                restTemplate.setUriTemplateHandler(handler);
-                return this;
-            }
-
-            @Override
-            public RestTemplateBuilder requestFactory(Supplier<ClientHttpRequestFactory> requestFactorySupplier) {
-                return this;
-            }
-
-            @Override
-            public RestTemplate build() {
-                return restTemplate;
-            }
-        };
-
-        userClient = new UserClient(stubBuilder);
+        // 4. Инициализируем клиент через тестовый конструктор
+        userClient = new UserClient(restTemplate);
     }
 
     @Test
