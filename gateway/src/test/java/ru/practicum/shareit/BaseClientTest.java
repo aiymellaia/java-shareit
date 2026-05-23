@@ -155,4 +155,17 @@ class BaseClientTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         mockServer.verify();
     }
+
+    @Test
+    void get_withoutUserId_shouldCallRequestWithoutHeaders() {
+        mockServer.expect(requestTo("/items/1"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(headerDoesNotExist("X-Sharer-User-Id")) // Проверяем, что заголовка нет
+                .andRespond(withStatus(HttpStatus.OK).body("")); // Пустое тело
+
+        ResponseEntity<Object> response = testClient.publicGet("/items/1"); // userId == null
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        mockServer.verify();
+    }
 }

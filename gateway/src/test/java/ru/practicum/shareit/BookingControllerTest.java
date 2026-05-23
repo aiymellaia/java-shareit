@@ -116,4 +116,41 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Unknown state: INVALID"));
     }
+
+    @Test
+    void getBookingById_whenServerError_thenReturnsError() throws Exception {
+        ResponseEntity<Object> mockResponse = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        when(bookingClient.getBookingById(anyLong(), anyLong())).thenReturn(mockResponse);
+
+        mockMvc.perform(get("/bookings/{bookingId}", 1L)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getBookings_whenStateIsNotProvided_thenReturns200WithDefaultState() throws Exception {
+        // Мы НЕ передаем параметр "state", ожидаем, что шлюз отправит "ALL"
+        when(bookingClient.getBookingsByBooker(anyLong(), eq("ALL"))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        mockMvc.perform(get("/bookings")
+                        .header(userIdHeader, 1L))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getBookingsByOwner_whenStateIsNotProvided_thenReturns200WithDefaultState() throws Exception {
+        when(bookingClient.getBookingsByOwner(anyLong(), eq("ALL"))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header(userIdHeader, 1L))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void createBooking_whenMissingUserId_thenReturns500() throws Exception {
+        mockMvc.perform(post("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"itemId\": 1}"))
+                .andExpect(status().isInternalServerError());
+    }
 }
