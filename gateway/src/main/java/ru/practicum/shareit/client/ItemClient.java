@@ -18,7 +18,7 @@ public class ItemClient extends BaseClient {
     public ItemClient(RestTemplateBuilder builder) {
         super(
                 builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090" + API_PREFIX))
+                        .uriTemplateHandler(new DefaultUriBuilderFactory("http://server:9090" + API_PREFIX))
                         .requestFactory(() -> new org.springframework.http.client.HttpComponentsClientHttpRequestFactory(
                                 org.apache.hc.client5.http.impl.classic.HttpClients.createDefault()
                         ))

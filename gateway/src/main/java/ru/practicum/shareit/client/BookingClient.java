@@ -18,7 +18,7 @@ public class BookingClient extends BaseClient {
     public BookingClient(RestTemplateBuilder builder) {
         super(
                 builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090" + API_PREFIX))
+                        .uriTemplateHandler(new DefaultUriBuilderFactory("http://server:9090" + API_PREFIX))
                         .requestFactory(() -> new HttpComponentsClientHttpRequestFactory(
                                 org.apache.hc.client5.http.impl.classic.HttpClients.createDefault()
                         ))
