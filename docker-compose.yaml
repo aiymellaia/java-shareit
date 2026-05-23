@@ -15,6 +15,7 @@ services:
     build: server
     image: shareit-server
     container_name: shareit-server
+    command: [ "java", "-jar", "/app.jar" ]
     ports:
       - "9090:9090"
     depends_on:
@@ -30,7 +31,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
       - SPRING_DATASOURCE_USERNAME=shareit
       - SPRING_DATASOURCE_PASSWORD=shareit
-
   db:
     image: postgres:16.1
     container_name: postgres
