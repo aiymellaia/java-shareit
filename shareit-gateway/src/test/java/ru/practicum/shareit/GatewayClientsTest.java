@@ -38,31 +38,91 @@ class GatewayClientsTest {
         assertNotNull(userClient);
 
         // --- Тестируем BookingClient ---
-        try { bookingClient.createBooking(1L, null); } catch (Exception ignored) {}
-        try { bookingClient.getBookingById(1L, 1L); } catch (Exception ignored) {}
-        try { bookingClient.approveBooking(1L, 1L, true); } catch (Exception ignored) {}
-        try { bookingClient.getBookingsByBooker(1L, "ALL"); } catch (Exception ignored) {}
-        try { bookingClient.getBookingsByOwner(1L, "ALL"); } catch (Exception ignored) {}
+        try {
+            bookingClient.createBooking(1L, null);
+        } catch (Exception ignored) {
+        }
+        try {
+            bookingClient.getBookingById(1L, 1L);
+        } catch (Exception ignored) {
+        }
+        try {
+            bookingClient.approveBooking(1L, 1L, true);
+        } catch (Exception ignored) {
+        }
+        try {
+            bookingClient.getBookingsByBooker(1L, "ALL");
+        } catch (Exception ignored) {
+        }
+        try {
+            bookingClient.getBookingsByOwner(1L, "ALL");
+        } catch (Exception ignored) {
+        }
 
         // --- Тестируем ItemClient ---
-        try { itemClient.createItem(1L, null); } catch (Exception ignored) {}
-        try { itemClient.updateItem(1L, 1L, null); } catch (Exception ignored) {}
-        try { itemClient.getItemById(1L, 1L); } catch (Exception ignored) {}
-        try { itemClient.getItemsByOwner(1L); } catch (Exception ignored) {}
-        try { itemClient.searchItems("дрель"); } catch (Exception ignored) {}
-        try { itemClient.addComment(1L, 1L, null); } catch (Exception ignored) {}
+        try {
+            itemClient.createItem(1L, null);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemClient.updateItem(1L, 1L, null);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemClient.getItemById(1L, 1L);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemClient.getItemsByOwner(1L);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemClient.searchItems("дрель");
+        } catch (Exception ignored) {
+        }
+        try {
+            itemClient.addComment(1L, 1L, null);
+        } catch (Exception ignored) {
+        }
 
         // --- Тестируем ItemRequestClient ---
-        try { itemRequestClient.create(1L, null); } catch (Exception ignored) {}
-        try { itemRequestClient.getOwnRequests(1L); } catch (Exception ignored) {}
-        try { itemRequestClient.getAllRequests(1L, 0, 10); } catch (Exception ignored) {}
-        try { itemRequestClient.getRequestById(1L, 1L); } catch (Exception ignored) {}
+        try {
+            itemRequestClient.create(1L, null);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemRequestClient.getOwnRequests(1L);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemRequestClient.getAllRequests(1L, 0, 10);
+        } catch (Exception ignored) {
+        }
+        try {
+            itemRequestClient.getRequestById(1L, 1L);
+        } catch (Exception ignored) {
+        }
 
         // --- Тестируем UserClient ---
-        try { userClient.createUser(null); } catch (Exception ignored) {}
-        try { userClient.updateUser(1L, null); } catch (Exception ignored) {}
-        try { userClient.getUserById(1L); } catch (Exception ignored) {}
-        try { userClient.getAllUsers(); } catch (Exception ignored) {}
-        try { userClient.deleteUser(1L); } catch (Exception ignored) {}
+        try {
+            userClient.createUser(null);
+        } catch (Exception ignored) {
+        }
+        try {
+            userClient.updateUser(1L, null);
+        } catch (Exception ignored) {
+        }
+        try {
+            userClient.getUserById(1L);
+        } catch (Exception ignored) {
+        }
+        try {
+            userClient.getAllUsers();
+        } catch (Exception ignored) {
+        }
+        try {
+            userClient.deleteUser(1L);
+        } catch (Exception ignored) {
+        }
     }
 }
