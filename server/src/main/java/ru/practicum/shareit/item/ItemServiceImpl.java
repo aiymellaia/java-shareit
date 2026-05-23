@@ -134,11 +134,13 @@ public class ItemServiceImpl implements ItemService {
         }
 
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
 
-        boolean canComment = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now())
+        LocalDateTime now = LocalDateTime.now();
+
+        boolean canComment = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now.plusSeconds(1))
                 .stream()
                 .anyMatch(b -> b.getItem().getId().equals(itemId) && b.getStatus() == BookingStatus.APPROVED);
 
@@ -150,7 +152,7 @@ public class ItemServiceImpl implements ItemService {
                 .text(commentDto.getText())
                 .author(author)
                 .item(item)
-                .created(LocalDateTime.now())
+                .created(now)
                 .build();
 
         return CommentMapper.toCommentDto(commentRepository.save(comment));
