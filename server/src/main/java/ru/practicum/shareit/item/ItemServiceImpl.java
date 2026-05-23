@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -140,11 +141,12 @@ public class ItemServiceImpl implements ItemService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        boolean canComment = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now.plusSeconds(1))
+        boolean isAllowed = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, now)
                 .stream()
-                .anyMatch(b -> b.getItem().getId().equals(itemId) && b.getStatus() == BookingStatus.APPROVED);
+                .anyMatch(booking -> booking.getItem().getId().equals(itemId)
+                        && booking.getStatus() == BookingStatus.APPROVED);
 
-        if (!canComment) {
+        if (!isAllowed) {
             throw new ValidationException("Комментарий может оставить только арендатор после окончания аренды");
         }
 
