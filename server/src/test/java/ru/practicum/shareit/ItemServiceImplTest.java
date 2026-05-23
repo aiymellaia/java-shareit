@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -157,5 +158,58 @@ class ItemServiceImplTest {
                 .thenReturn(Collections.emptyList());
 
         assertThrows(ValidationException.class, () -> itemService.addComment(2L, 1L, commentDto));
+    }
+
+    @Test
+    void addComment_whenValid_thenReturnsCommentDto() {
+        CommentDto commentDto = CommentDto.builder().text("Отличная вещь").build();
+        Booking booking = Booking.builder()
+                .id(1L).status(BookingStatus.APPROVED).item(item).booker(stranger).build();
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(stranger));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(anyLong(), any()))
+                .thenReturn(List.of(booking));
+
+        when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> {
+            Comment c = invocation.getArgument(0);
+            c.setId(1L);
+            c.setCreated(LocalDateTime.now());
+            return c;
+        });
+
+        CommentDto result = itemService.addComment(2L, 1L, commentDto);
+
+        assertNotNull(result);
+        assertEquals("Отличная вещь", result.getText());
+        verify(commentRepository, times(1)).save(any(Comment.class));
+    }
+
+    @Test
+    void addComment_whenTextIsBlank_thenThrowsValidationException() {
+        CommentDto emptyComment = CommentDto.builder().text("").build();
+        assertThrows(ValidationException.class, () -> itemService.addComment(1L, 1L, emptyComment));
+    }
+
+    @Test
+    void search_whenTextIsValid_thenReturnsList() {
+        when(itemRepository.search("молоток")).thenReturn(List.of(item));
+
+        List<ItemDto> result = itemService.search("молоток");
+
+        assertEquals(1, result.size());
+        assertEquals("Молоток", result.get(0).getName());
+    }
+
+    @Test
+    void getItemById_whenUserIsNotOwner_thenReturnsItemWithoutBookings() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(commentRepository.findAllByItemId(1L)).thenReturn(Collections.emptyList());
+
+        ItemDto result = itemService.getItemById(1L, 99L);
+
+        assertNotNull(result);
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
     }
 }
