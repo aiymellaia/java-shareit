@@ -129,4 +129,30 @@ class BaseClientTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         mockServer.verify();
     }
+
+    @Test
+    void makeAndSendRequest_whenResponseIs200WithNullBody_shouldReturn200WithNull() {
+        mockServer.expect(requestTo("/items/empty"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.OK).body("")); // пустое тело
+
+        ResponseEntity<Object> response = testClient.publicGet("/items/empty");
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        mockServer.verify();
+    }
+
+    @Test
+    void makeAndSendRequest_whenServerReturns500InternalServerError_shouldReturn500Status() {
+        mockServer.expect(requestTo("/items/fail"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withServerError().body("Внутренняя ошибка сервера"));
+
+        ResponseEntity<Object> response = testClient.publicGet("/items/fail");
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        mockServer.verify();
+    }
 }
