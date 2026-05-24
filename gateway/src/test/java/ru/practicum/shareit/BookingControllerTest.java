@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
 
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
@@ -35,8 +36,6 @@ class BookingControllerTest {
     @MockBean
     private BookingClient bookingClient;
 
-    private final String userIdHeader = "X-Sharer-User-Id";
-
     @Test
     void createBooking_whenValid_thenReturns200() throws Exception {
         BookingInputDto inputDto = new BookingInputDto();
@@ -48,7 +47,7 @@ class BookingControllerTest {
         when(bookingClient.createBooking(anyLong(), any(BookingInputDto.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/bookings")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isOk());
@@ -56,11 +55,10 @@ class BookingControllerTest {
 
     @Test
     void createBooking_whenInvalidDto_thenReturns400() throws Exception {
-        // Оставляем поля null, чтобы сработал @NotNull в DTO шлюза
         BookingInputDto invalidDto = new BookingInputDto();
 
         mockMvc.perform(post("/bookings")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
@@ -72,7 +70,7 @@ class BookingControllerTest {
         when(bookingClient.approveBooking(anyLong(), anyLong(), any(Boolean.class))).thenReturn(mockResponse);
 
         mockMvc.perform(patch("/bookings/{bookingId}", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("approved", "true"))
                 .andExpect(status().isOk());
     }
@@ -83,7 +81,7 @@ class BookingControllerTest {
         when(bookingClient.getBookingById(anyLong(), anyLong())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -93,7 +91,7 @@ class BookingControllerTest {
         when(bookingClient.getBookingsByBooker(anyLong(), eq("WAITING"))).thenReturn(mockResponse);
 
         mockMvc.perform(get("/bookings")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "waiting")) // проверяем, что приводится к upperCase
                 .andExpect(status().isOk());
     }
@@ -102,7 +100,7 @@ class BookingControllerTest {
     void getBookings_whenUnknownState_thenReturns400() throws Exception {
         // На этот запрос шлюз должен ответить сам (400 Bad Request) с ошибкой в теле
         mockMvc.perform(get("/bookings")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "UNSUPPORTED_STATE"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Unknown state: UNSUPPORTED_STATE"));
@@ -111,7 +109,7 @@ class BookingControllerTest {
     @Test
     void getBookingsByOwner_whenUnknownState_thenReturns400() throws Exception {
         mockMvc.perform(get("/bookings/owner")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "INVALID"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Unknown state: INVALID"));
@@ -133,7 +131,7 @@ class BookingControllerTest {
         when(bookingClient.getBookingsByBooker(anyLong(), eq("ALL"))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         mockMvc.perform(get("/bookings")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -142,7 +140,7 @@ class BookingControllerTest {
         when(bookingClient.getBookingsByOwner(anyLong(), eq("ALL"))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         mockMvc.perform(get("/bookings/owner")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 

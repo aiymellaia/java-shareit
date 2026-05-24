@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.client.ItemRequestClient;
 import ru.practicum.shareit.request.dto.ItemRequestInputDto;
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
 
 @RestController
 @RequestMapping(path = "/requests")
@@ -17,7 +18,6 @@ import ru.practicum.shareit.request.dto.ItemRequestInputDto;
 public class ItemRequestController {
 
     private final ItemRequestClient requestClient;
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader(USER_ID_HEADER) Long userId,

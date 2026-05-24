@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -127,8 +128,10 @@ class ItemRequestServiceImplTest {
                 .build();
 
         when(userRepository.existsById(1L)).thenReturn(true);
-        when(requestRepository.findAllByRequestorIdNotOrderByCreatedDesc(1L))
-                .thenReturn(List.of(itemRequest, secondRequest));
+
+        when(requestRepository.findAllByRequestorIdNot(eq(1L), any(Pageable.class)))
+                .thenReturn(List.of(itemRequest));
+
         when(itemRepository.findAllByRequestIdIn(any())).thenReturn(Collections.emptyList());
 
         List<ItemRequestDto> result = requestService.getAllRequests(1L, 0, 1);
@@ -141,7 +144,8 @@ class ItemRequestServiceImplTest {
     @Test
     void getAllRequests_whenFromExceedsSize_thenReturnsEmptyList() {
         when(userRepository.existsById(1L)).thenReturn(true);
-        when(requestRepository.findAllByRequestorIdNotOrderByCreatedDesc(1L)).thenReturn(List.of(itemRequest));
+        when(requestRepository.findAllByRequestorIdNot(eq(1L), any(Pageable.class)))
+                .thenReturn(Collections.emptyList());
 
         List<ItemRequestDto> result = requestService.getAllRequests(1L, 5, 10);
 

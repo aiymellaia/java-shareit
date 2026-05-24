@@ -13,6 +13,7 @@ import ru.practicum.shareit.client.ItemClient;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -33,8 +34,6 @@ class ItemControllerTest {
     @MockBean
     private ItemClient itemClient;
 
-    private final String userIdHeader = "X-Sharer-User-Id";
-
     @Test
     void createItem_whenValid_thenReturns200() throws Exception {
         ItemDto validItem = ItemDto.builder()
@@ -47,7 +46,7 @@ class ItemControllerTest {
         when(itemClient.createItem(anyLong(), any(ItemDto.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/items")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validItem)))
                 .andExpect(status().isOk());
@@ -62,7 +61,7 @@ class ItemControllerTest {
                 .build();
 
         mockMvc.perform(post("/items")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidItem)))
                 .andExpect(status().isBadRequest());
@@ -77,7 +76,7 @@ class ItemControllerTest {
                 .build();
 
         mockMvc.perform(post("/items")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidItem)))
                 .andExpect(status().isBadRequest());
@@ -91,7 +90,7 @@ class ItemControllerTest {
         when(itemClient.updateItem(anyLong(), anyLong(), any(ItemDto.class))).thenReturn(mockResponse);
 
         mockMvc.perform(patch("/items/{itemId}", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateItem)))
                 .andExpect(status().isOk());
@@ -103,7 +102,7 @@ class ItemControllerTest {
         when(itemClient.getItemById(anyLong(), anyLong())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/items/{itemId}", 1L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -113,7 +112,7 @@ class ItemControllerTest {
         when(itemClient.getItemsByOwner(anyLong())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/items")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -137,7 +136,7 @@ class ItemControllerTest {
         when(itemClient.addComment(anyLong(), anyLong(), any(CommentDto.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/items/{itemId}/comment", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validComment)))
                 .andExpect(status().isOk());
@@ -150,7 +149,7 @@ class ItemControllerTest {
                 .build();
 
         mockMvc.perform(post("/items/{itemId}/comment", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidComment)))
                 .andExpect(status().isBadRequest());

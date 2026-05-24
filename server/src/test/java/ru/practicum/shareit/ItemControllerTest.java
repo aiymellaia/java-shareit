@@ -14,6 +14,8 @@ import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +38,6 @@ class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    private final String userIdHeader = "X-Sharer-User-Id";
     private ItemDto itemDto;
     private CommentDto commentDto;
 
@@ -63,7 +64,7 @@ class ItemControllerTest {
         when(itemService.create(eq(1L), any(ItemDto.class))).thenReturn(itemDto);
 
         mockMvc.perform(post("/items")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk())
@@ -82,7 +83,7 @@ class ItemControllerTest {
         when(itemService.update(eq(1L), eq(1L), any(ItemDto.class))).thenReturn(resultDto);
 
         mockMvc.perform(patch("/items/{itemId}", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
@@ -94,7 +95,7 @@ class ItemControllerTest {
         when(itemService.getItemById(1L, 1L)).thenReturn(itemDto);
 
         mockMvc.perform(get("/items/{itemId}", 1L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Крестовая, магнитная"));
@@ -105,7 +106,7 @@ class ItemControllerTest {
         when(itemService.getItemsByOwner(1L)).thenReturn(List.of(itemDto));
 
         mockMvc.perform(get("/items")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Отвертка"));
@@ -129,7 +130,7 @@ class ItemControllerTest {
         when(itemService.addComment(eq(1L), eq(1L), any(CommentDto.class))).thenReturn(commentDto);
 
         mockMvc.perform(post("/items/{itemId}/comment", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentDto)))
                 .andExpect(status().isOk())
@@ -145,7 +146,7 @@ class ItemControllerTest {
                 .thenThrow(new ValidationException("Вы не арендатор вещи"));
 
         mockMvc.perform(post("/items/{itemId}/comment", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentDto)))
                 .andExpect(status().isBadRequest());

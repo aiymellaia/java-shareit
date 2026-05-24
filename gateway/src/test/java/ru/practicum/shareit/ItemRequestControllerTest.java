@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
 
 @WebMvcTest(controllers = {ItemRequestController.class, ErrorHandler.class})
 class ItemRequestControllerTest {
@@ -34,8 +35,6 @@ class ItemRequestControllerTest {
     @MockBean
     private ItemRequestClient requestClient;
 
-    private final String userIdHeader = "X-Sharer-User-Id";
-
     @Test
     void create_whenValid_thenReturns200() throws Exception {
         ItemRequestInputDto inputDto = new ItemRequestInputDto();
@@ -45,7 +44,7 @@ class ItemRequestControllerTest {
         when(requestClient.create(anyLong(), any(ItemRequestInputDto.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/requests")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isOk());
@@ -57,7 +56,7 @@ class ItemRequestControllerTest {
         invalidDto.setDescription(""); // Нарушаем @NotBlank в DTO
 
         mockMvc.perform(post("/requests")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
@@ -69,7 +68,7 @@ class ItemRequestControllerTest {
         when(requestClient.getOwnRequests(anyLong())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/requests")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 
@@ -79,7 +78,7 @@ class ItemRequestControllerTest {
         when(requestClient.getAllRequests(anyLong(), anyInt(), anyInt())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/requests/all")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "0")
                         .param("size", "20"))
                 .andExpect(status().isOk());
@@ -88,7 +87,7 @@ class ItemRequestControllerTest {
     @Test
     void getAllRequests_whenFromIsNegative_thenReturns400() throws Exception {
         mockMvc.perform(get("/requests/all")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "-1") // Нарушаем @PositiveOrZero
                         .param("size", "10"))
                 .andExpect(status().isBadRequest());
@@ -97,7 +96,7 @@ class ItemRequestControllerTest {
     @Test
     void getAllRequests_whenSizeIsZero_thenReturns400() throws Exception {
         mockMvc.perform(get("/requests/all")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "0")
                         .param("size", "0")) // Нарушаем @Positive (size должен быть строго > 0)
                 .andExpect(status().isBadRequest());
@@ -109,7 +108,7 @@ class ItemRequestControllerTest {
         when(requestClient.getRequestById(anyLong(), anyLong())).thenReturn(mockResponse);
 
         mockMvc.perform(get("/requests/{requestId}", 1L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
     }
 }

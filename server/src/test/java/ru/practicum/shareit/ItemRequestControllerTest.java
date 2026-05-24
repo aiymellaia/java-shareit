@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
 
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
@@ -37,7 +38,6 @@ class ItemRequestControllerTest {
     @MockBean
     private ItemRequestService requestService;
 
-    private final String userIdHeader = "X-Sharer-User-Id";
     private ItemRequestDto responseDto;
     private ItemRequestInputDto inputDto;
 
@@ -59,7 +59,7 @@ class ItemRequestControllerTest {
         when(requestService.create(eq(1L), any(ItemRequestInputDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post("/requests")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isOk())
@@ -76,7 +76,7 @@ class ItemRequestControllerTest {
         when(requestService.getOwnRequests(1L)).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/requests")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1L));
@@ -89,7 +89,7 @@ class ItemRequestControllerTest {
         when(requestService.getAllRequests(anyLong(), anyInt(), anyInt())).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/requests/all")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("from", "0")
                         .param("size", "5"))
                 .andExpect(status().isOk())
@@ -104,7 +104,7 @@ class ItemRequestControllerTest {
 
         // Проверяем, что дефолтные значения defaultValue = "0" и "10" подставляются контроллером
         mockMvc.perform(get("/requests/all")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
 
         verify(requestService, times(1)).getAllRequests(1L, 0, 10);
@@ -115,7 +115,7 @@ class ItemRequestControllerTest {
         when(requestService.getRequestById(1L, 1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/requests/{requestId}", 1L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("Нужна стремянка"));
@@ -127,7 +127,7 @@ class ItemRequestControllerTest {
                 .thenThrow(new NotFoundException("Запрос не найден"));
 
         mockMvc.perform(get("/requests/{requestId}", 99L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isNotFound());
     }
 }

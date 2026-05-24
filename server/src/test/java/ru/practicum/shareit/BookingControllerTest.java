@@ -20,6 +20,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.shareit.common.ProjectConstants.USER_ID_HEADER;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,7 +39,6 @@ class BookingControllerTest {
     @MockBean
     private BookingService bookingService;
 
-    private final String userIdHeader = "X-Sharer-User-Id";
     private BookingInputDto inputDto;
     private BookingDto responseDto;
 
@@ -66,7 +67,7 @@ class BookingControllerTest {
         when(bookingService.create(eq(1L), any(BookingInputDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post("/bookings")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isOk())
@@ -84,7 +85,7 @@ class BookingControllerTest {
         when(bookingService.approve(1L, 1L, true)).thenReturn(responseDto);
 
         mockMvc.perform(patch("/bookings/{bookingId}", 1L)
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("approved", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("APPROVED"));
@@ -97,7 +98,7 @@ class BookingControllerTest {
         when(bookingService.getBookingById(1L, 1L)).thenReturn(responseDto);
 
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L));
     }
@@ -108,7 +109,7 @@ class BookingControllerTest {
                 .thenThrow(new NotFoundException("Бронирование не найдено"));
 
         mockMvc.perform(get("/bookings/{bookingId}", 99L)
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isNotFound());
     }
 
@@ -117,7 +118,7 @@ class BookingControllerTest {
         when(bookingService.getBookingsByBooker(1L, "FUTURE")).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/bookings")
-                        .header(userIdHeader, 1L)
+                        .header(USER_ID_HEADER, 1L)
                         .param("state", "FUTURE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1));
@@ -129,8 +130,8 @@ class BookingControllerTest {
     void getBookings_withoutStateParam_thenUsesDefaultAll() throws Exception {
         when(bookingService.getBookingsByBooker(1L, "ALL")).thenReturn(List.of(responseDto));
 
-         mockMvc.perform(get("/bookings")
-                        .header(userIdHeader, 1L))
+        mockMvc.perform(get("/bookings")
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
 
         verify(bookingService, times(1)).getBookingsByBooker(1L, "ALL");
@@ -141,7 +142,7 @@ class BookingControllerTest {
         when(bookingService.getBookingsByOwner(1L, "ALL")).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/bookings/owner")
-                        .header(userIdHeader, 1L))
+                        .header(USER_ID_HEADER, 1L))
                 .andExpect(status().isOk());
 
         verify(bookingService, times(1)).getBookingsByOwner(1L, "ALL");
